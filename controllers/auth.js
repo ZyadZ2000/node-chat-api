@@ -6,7 +6,7 @@ const sgMail = require("@sendgrid/mail");
 
 const crypto = require("crypto");
 
-const User = require("../models/User");
+const User = require("../models/user");
 
 dotenv.config();
 
@@ -24,16 +24,12 @@ exports.register = async (req, res) => {
     const user = new User({
       email,
       password: hashedPassword,
-      cart: [],
-      orders: [],
-      productsCreated: [],
     });
 
     await user.save();
 
     res.status(201).send({ message: "User registered successfully" });
   } catch (err) {
-    const error = new Error(err);
     next(err);
   }
 };
@@ -45,7 +41,7 @@ exports.login = (req, res, next) => {
     }
 
     if (!user) {
-      return res.status(400).send({ error: info.message });
+      return res.status(400).send({ message: info.message });
     }
 
     const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, {
@@ -81,23 +77,19 @@ exports.resetPassword = (req, res, next) => {
         /*
           Send Email with a link with the token
         */
-        sgMail
-          .send({
-            to: email,
-            from: "zyad.enaba2000@gmail.com",
-            subject: "Password Reset Request",
-            html: `<p>You requested a password reset</p>
+        return sgMail.send({
+          to: email,
+          from: "zyad.enaba2000@gmail.com",
+          subject: "Password Reset Request",
+          html: `<p>You requested a password reset</p>
             <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password.</p>`,
-          })
-          .then(() => {
-            return res.status(200).json({ message: "Email sent." });
-          })
-          .catch((error) => {
-            throw error;
-          });
+        });
+      })
+      .then(() => {
+        res.status(200).json({ message: "Email sent." });
       })
       .catch((err) => {
-        res.status(500).json({ message: err.message });
+        next(err);
       });
   });
 };
@@ -112,24 +104,18 @@ exports.confirmReset = (req, res, next) => {
     tokenExpiration: { $gt: Date.now() },
   })
     .then((user) => {
-      bcrypt
-        .hash(password, process.env.BCRYPT_SALT_ROUNDS)
-        .then((hashedPass) => {
-          user.password = hashedPass;
-          user.token = undefined;
-          user.tokenExpiration = undefined;
-          return user.save();
-        })
-        .then(() => {
-          return res
-            .status(201)
-            .json({ message: "Password reset successfully" });
-        })
-        .catch((error) => {
-          throw error;
-        });
+      return bcrypt.hash(password, process.env.BCRYPT_SALT_ROUNDS);
     })
-    .catch((error) => {
-      res.status(500).json({ message: error.message });
+    .then((hashedPass) => {
+      user.password = hashedPass;
+      user.token = undefined;
+      user.tokenExpiration = undefined;
+      return user.save();
+    })
+    .then(() => {
+      return res.status(201).json({ message: "Password reset successfully" });
+    })
+    .catch((err) => {
+      next(err);
     });
 };
