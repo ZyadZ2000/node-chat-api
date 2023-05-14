@@ -64,7 +64,7 @@ exports.resetPassword = (req, res, next) => {
   const email = req.body.email;
   crypto.randomBytes(32, (err, buffer) => {
     if (err) {
-      return res.status(500).json({ message: err.message });
+      return next(err);
     }
     const token = buffer.toString("hex");
     User.findOne({ email: email })

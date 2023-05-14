@@ -15,9 +15,9 @@ const path = require("path");
 const authRouter = require("./routes/auth");
 const passportStrategies = require("./configuration/passport");
 
-const PORT = process.env.PORT || 3000;
-
 dotenv.config();
+
+const PORT = process.env.PORT || 3000;
 
 passportStrategies();
 
@@ -29,10 +29,6 @@ app.use(morgan("common"));
 
 app.use(bodyParser.json({ limit: "30mb" }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-
-app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
-);
 
 app.use(cors());
 
