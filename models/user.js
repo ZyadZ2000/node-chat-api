@@ -40,11 +40,10 @@ const userSchema = new mongoose.Schema({
   requests: [
     {
       type: {
-        groupRequest: { type: Boolean, default: false },
         from: {
           type: String,
           ref: "User",
-          default: null,
+          required: true,
         },
         group: {
           type: mongoose.Schema.Types.ObjectId,
@@ -57,10 +56,14 @@ const userSchema = new mongoose.Schema({
   ],
   token: {
     type: String,
+    default: null,
   },
   tokenExpiration: {
     type: Date,
+    default: null,
   },
 });
 
 const User = mongoose.model("User", userSchema);
+
+module.exports = User;

@@ -14,7 +14,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.register = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
 
     const hashedPassword = await bcrypt.hash(
       password,
@@ -22,8 +22,9 @@ exports.register = async (req, res) => {
     );
 
     const user = new User({
-      email,
+      email: email,
       password: hashedPassword,
+      username: username,
     });
 
     await user.save();
