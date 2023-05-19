@@ -39,7 +39,7 @@ app.use(passport.initialize());
 app.use("/", authRouter);
 
 /* User routes */
-app.use("/".userRouter);
+app.use("/", userRouter);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: "This route doesn't exist" });

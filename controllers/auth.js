@@ -11,13 +11,13 @@ dotenv.config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
   try {
     const { email, password, username } = req.body;
 
     const hashedPassword = await bcrypt.hash(
       password,
-      process.env.BCRYPT_SALT_ROUNDS
+      Number(process.env.BCRYPT_SALT_ROUNDS)
     );
 
     const user = new User({
@@ -88,19 +88,21 @@ exports.confirmReset = (req, res, next) => {
   const token = req.body.token;
   const email = req.body.email;
   const password = req.body.password;
+  let foundUser = null;
   User.findOne({
     email: email,
     token: token,
     tokenExpiration: { $gt: Date.now() },
   })
     .then((user) => {
-      return bcrypt.hash(password, process.env.BCRYPT_SALT_ROUNDS);
+      foundUser = user;
+      return bcrypt.hash(password, Number(process.env.BCRYPT_SALT_ROUNDS));
     })
     .then((hashedPass) => {
-      user.password = hashedPass;
-      user.token = undefined;
-      user.tokenExpiration = undefined;
-      return user.save();
+      foundUser.password = hashedPass;
+      foundUser.token = undefined;
+      foundUser.tokenExpiration = undefined;
+      return foundUser.save();
     })
     .then(() => {
       return res.status(201).json({ message: "Password reset successfully" });

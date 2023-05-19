@@ -58,7 +58,7 @@ const passportStrategies = () => {
           const password = await crypto.randomBytes(32);
           const hashedPassword = await bcrypt.hash(
             password.toString("hex"),
-            process.env.BCRYPT_SALT_ROUNDS
+            Number(process.env.BCRYPT_SALT_ROUNDS)
           );
           const newUser = new User({
             email: email,
