@@ -36,21 +36,11 @@ exports.register = async (req, res) => {
 };
 
 exports.login = (req, res, next) => {
-  passport.authenticate("local", { session: false }, (err, user, info) => {
-    if (err) {
-      return next(err);
-    }
+  const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
 
-    if (!user) {
-      return res.status(400).send({ message: info.message });
-    }
-
-    const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    return res.status(200).send({ token });
-  })(req, res, next);
+  return res.status(200).send({ token });
 };
 
 exports.googleLogin = (req, res, next) => {

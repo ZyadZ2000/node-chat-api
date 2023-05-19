@@ -5,6 +5,8 @@ const passport = require("passport");
 const authController = require("../controllers/auth");
 const { validate, sanitize } = require("../middleware/validate-sanitize");
 
+const User = require("../models/user");
+
 const router = express.Router();
 
 /* Local Authentication */
@@ -20,6 +22,19 @@ router.post(
         if (user) {
           return Promise.reject(
             "E-Mail exists already, please pick a different one."
+          );
+        }
+      }),
+    body("username")
+      .isString()
+      .withMessage("username must be a string.")
+      .isLength({ min: 3, max: 30 })
+      .withMessage("username must be at least 3 characters.")
+      .custom(async (value, { req }) => {
+        const user = await User.findOne({ username: value });
+        if (user) {
+          return Promise.reject(
+            "username exists already, please pick a different one."
           );
         }
       }),
@@ -45,6 +60,7 @@ router.post(
       .withMessage("Password must be at least 6 characters."),
   ],
   validate,
+  passport.authenticate("local", { session: false }),
   authController.login
 );
 
@@ -61,7 +77,6 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "/error",
     session: false,
   }),
   authController.googleLogin

@@ -4,10 +4,11 @@ const LocalStrategy = require("passport-local").Strategy;
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const bcrypt = require("bcrypt");
+const { v4: uuidv4 } = require("uuid");
 
 const crypto = require("crypto");
 
-const User = require("../models/User");
+const User = require("../models/user");
 
 const passportStrategies = () => {
   passport.use(
@@ -62,9 +63,7 @@ const passportStrategies = () => {
           const newUser = new User({
             email: email,
             password: hashedPassword,
-            cart: [],
-            orders: [],
-            productsCreated: [],
+            username: uuidv4(),
           });
           await newUser.save();
           return done(null, user);
