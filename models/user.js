@@ -23,18 +23,25 @@ const userSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
-  groups: [
+  chats: [
     {
       type: mongoose.Schema.Types.ObjectId,
       default: [],
-      ref: "Group",
+      ref: "Chat",
     },
   ],
-  blockedList: [
+  blockedUsers: [
     {
       type: String,
       default: [],
       ref: "User",
+    },
+  ],
+  blockedChats: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      default: [],
+      ref: "Chat",
     },
   ],
   requests: [
@@ -45,10 +52,10 @@ const userSchema = new mongoose.Schema({
           ref: "User",
           required: true,
         },
-        group: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Group",
-          default: null,
+        /* Request types: chat request (a group or a private chat), contact request, */
+        requestType: {
+          type: String,
+          required: true,
         },
       },
       default: [],
