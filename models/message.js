@@ -4,6 +4,7 @@ const messageSchema = new mongoose.Schema({
   sender: {
     type: String,
     ref: "User",
+    required: true,
   },
   receivers: {
     type: [
@@ -24,6 +25,15 @@ const messageSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Group",
     default: null,
+  },
+  readBy: {
+    type: [
+      {
+        type: String,
+        ref: "User",
+      },
+    ],
+    default: [],
   },
 });
 

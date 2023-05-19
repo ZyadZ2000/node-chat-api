@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
 const groupSchema = new mongoose.Schema({
   members: {
@@ -34,6 +35,12 @@ const groupSchema = new mongoose.Schema({
   onlyAdminMessages: {
     type: Boolean,
     default: false,
+  },
+  inviteId: {
+    type: String,
+    unique: true,
+    required: true,
+    default: uuidv4,
   },
 });
 
