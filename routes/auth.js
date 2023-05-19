@@ -17,7 +17,7 @@ router.post(
     body("email")
       .isEmail()
       .withMessage("Email address is invalid.")
-      .custom(async (value, { req }) => {
+      .custom(async (value) => {
         const user = await User.findOne({ email: value });
         if (user) {
           return Promise.reject(
@@ -30,7 +30,7 @@ router.post(
       .withMessage("username must be a string.")
       .isLength({ min: 3, max: 30 })
       .withMessage("username must be at least 3 characters.")
-      .custom(async (value, { req }) => {
+      .custom(async (value) => {
         const user = await User.findOne({ username: value });
         if (user) {
           return Promise.reject(
@@ -64,9 +64,29 @@ router.post(
   authController.login
 );
 
-router.post("/reset-password", authController.resetPassword);
+router.post(
+  "/reset-password",
+  sanitize,
+  [body("email").isEmail().withMessage("Email address is invalid.")],
+  validate,
+  authController.resetPassword
+);
 
-router.post("/confirm-reset", authController.confirmReset);
+router.post(
+  "/confirm-reset",
+  sanitize,
+  [
+    body("email").isEmail().withMessage("Email address is invalid."),
+    body("password")
+      .isString()
+      .withMessage("Password must be a string.")
+      .isLength({ min: 6, max: 30 })
+      .withMessage("Password must be at least 6 characters."),
+    body("token").isString().withMessage("Invalid token"),
+  ],
+  validate,
+  authController.confirmReset
+);
 
 /* Google Authentication */
 router.get(

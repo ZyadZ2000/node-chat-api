@@ -50,7 +50,7 @@ const passportStrategies = () => {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: "http://localhost:3000/google/callback",
       },
-      async function (accessToken, refreshToken, profile, done) {
+      async function (_, __, profile, done) {
         try {
           const email = profile._json.email;
           const user = await User.findOne({ email: email });
@@ -66,7 +66,7 @@ const passportStrategies = () => {
             username: uuidv4(),
           });
           await newUser.save();
-          return done(null, user);
+          return done(null, newUser);
         } catch (error) {
           return done(error);
         }

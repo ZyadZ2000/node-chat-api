@@ -81,3 +81,5 @@ router.put(
   validate,
   userController.changeUsername
 );
+
+module.exports = router;

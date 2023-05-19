@@ -13,6 +13,7 @@ const path = require("path");
 
 /* My own modules */
 const authRouter = require("./routes/auth");
+const userRouter = require("./routes/user");
 const passportStrategies = require("./configuration/passport");
 
 dotenv.config();
@@ -36,6 +37,9 @@ app.use(passport.initialize());
 
 /* Authentication */
 app.use("/", authRouter);
+
+/* User routes */
+app.use("/".userRouter);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: "This route doesn't exist" });
