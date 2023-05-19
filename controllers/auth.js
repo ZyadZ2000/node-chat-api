@@ -1,7 +1,6 @@
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const passport = require("passport");
 const sgMail = require("@sendgrid/mail");
 
 const crypto = require("crypto");
@@ -36,7 +35,7 @@ exports.register = async (req, res) => {
 };
 
 exports.login = (req, res, next) => {
-  const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ sub: req.user.id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
