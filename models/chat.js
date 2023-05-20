@@ -8,7 +8,7 @@ const chatSchema = new mongoose.Schema({
       ref: "User",
       validate: {
         validator: function (arr) {
-          return arr.length >= 2;
+          return arr.length >= 1;
         },
         message: "At least one receiver is required.",
       },
@@ -22,9 +22,18 @@ const chatSchema = new mongoose.Schema({
       default: [],
     },
   ],
+  creator: {
+    type: String,
+    ref: "User",
+    required: true,
+  },
   inviteId: {
     type: String,
     required: true,
     default: uuidv4,
   },
 });
+
+const Chat = mongoose.Model("Chat", chatSchema);
+
+module.exports = Chat;
