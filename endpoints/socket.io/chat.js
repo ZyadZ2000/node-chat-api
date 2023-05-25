@@ -2,9 +2,9 @@ const express = require("express");
 const { body } = require("express-validator");
 const passport = require("passport");
 
-const chatController = require("../controllers/chat");
-const { validate, sanitize } = require("../middleware/validate-sanitize");
-const User = require("../models/user");
+const chatController = require("../../controllers/socket.io/chat");
+const { validate, sanitize } = require("../../middleware/validate-sanitize");
+const User = require("../../models/user");
 
 const router = express.Router();
 

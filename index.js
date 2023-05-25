@@ -21,10 +21,10 @@ const io = require("socket.io")(server, {
 const path = require("path");
 
 /* My own modules */
-const authRouter = require("./routes/auth");
-const profileRouter = require("./routes/profile");
-const userRouter = require("./routes/user");
-const passportStrategies = require("./configuration/passport");
+const authRouter = require("./endpoints/express/auth");
+const profileRouter = require("./endpoints/profile");
+const userRouter = require("./endpoints/user");
+const passportStrategies = require("./passport-config");
 const { sanitize } = require("../middleware/validate-sanitize");
 
 dotenv.config();

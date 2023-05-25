@@ -2,10 +2,10 @@ const express = require("express");
 const { body } = require("express-validator");
 const passport = require("passport");
 
-const authController = require("../controllers/auth");
-const { validate, sanitize } = require("../middleware/validate-sanitize");
+const authController = require("../../controllers/auth");
+const { validate, sanitize } = require("../../middleware/validate-sanitize");
 
-const User = require("../models/user");
+const User = require("../../models/user");
 
 const router = express.Router();
 

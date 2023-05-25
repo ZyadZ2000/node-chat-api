@@ -52,31 +52,39 @@ const User = require("../models/user");
 // module.exports = router;
 
 blockEvent = (socket) => {
-  return socket.on("user-block", async (data) => {
+  return socket.on("blockUser", async (data) => {
     try {
-      const { blocked_username } = data;
+      const { blockedUsername } = data;
 
-      const current_user = socket.user;
+      const currentUser = socket.user;
 
-      const blocked_user = await User.findOne({ username: blocked_username });
+      const blockedUser = await User.findOne({ username: blockedUsername });
 
-      if (!blocked_user) return next(new Error("Username doesn't exist"));
+      if (!blockedUser) return next(new Error("Username doesn't exist"));
 
       //add the blocked user to the blocked list
-      current_user.blockedUsers.push(blocked_username);
+      currentUser.blockedUsers.push(blockedUsername);
+
+      //remove this blocked user from the current user requests
+      currentUser.requests = currentUser.requests.filter(
+        (request) => request.from !== blockedUsername
+      );
 
       //remove this user from the blocked user contacts
-      blocked_user.contacts = blocked_user.contacts.filter(
-        (contact) => contact !== current_user.username
+      blockedUser.contacts = blockedUser.contacts.filter(
+        (contact) => contact !== currentUser.username
       );
-      //remove this blocked user from the current user requests
-      current_user.requests = current_user.requests.filter();
-    } catch (error) {}
+
+      await currentUser.save();
+      await blockedUser.save();
+    } catch (error) {
+      //emit the error here
+    }
   });
 };
 
 deleteEvent = (socket) => {
-  return socket.on("user-delete", async (data) => {
+  return socket.on("deleteContact", async (data) => {
     try {
       const { blocked_username } = data;
 
