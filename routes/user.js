@@ -1,21 +1,100 @@
-const express = require("express");
-const { body } = require("express-validator");
-const passport = require("passport");
+// const express = require("express");
+// const { body } = require("express-validator");
+// const passport = require("passport");
 
-const userController = require("../controllers/user");
-const { validate, sanitize } = require("../middleware/validate-sanitize");
 const User = require("../models/user");
 
-const router = express.Router();
+// const userController = require("../controllers/user");
+// const { validate } = require("../middleware/validate-sanitize");
+// const User = require("../models/user");
 
-router.post("/request-user");
+// const router = express.Router();
 
-router.post("/accept-user");
+// /* SOCKET.IO */
+// router.post(
+//   "/block",
+//   [
+//     body("username")
+//       .isString()
+//       .withMessage("username must be a string.")
+//       .isLength({ min: 3, max: 30 })
+//       .withMessage("username must be at least 3 characters.")
+//       .custom(async (value) => {
+//         const user = await User.findOne({ username: value });
+//         if (!user) {
+//           return Promise.reject("username doesn't exist");
+//         }
+//       }),
+//   ],
+//   passport.authenticate("jwt", { session: false }),
+//   userController.blockUser
+// );
 
-router.post("/decline-user");
+// router.delete(
+//   "/contact/delete",
+//   [
+//     body("username")
+//       .isString()
+//       .withMessage("username must be a string.")
+//       .isLength({ min: 3, max: 30 })
+//       .withMessage("username must be at least 3 characters.")
+//       .custom(async (value) => {
+//         const user = await User.findOne({ username: value });
+//         if (!user) {
+//           return Promise.reject("username doesn't exist");
+//         }
+//       }),
+//   ],
+//   passport.authenticate("jwt", { session: false }),
+//   userController.deleteUser
+// );
 
-router.post("/block-user");
+// module.exports = router;
 
-router.post("/remove-user");
+blockEvent = (socket) => {
+  return socket.on("user-block", async (data) => {
+    try {
+      const { blocked_username } = data;
 
-module.exports = router;
+      const current_user = socket.user;
+
+      const blocked_user = await User.findOne({ username: blocked_username });
+
+      if (!blocked_user) return next(new Error("Username doesn't exist"));
+
+      //add the blocked user to the blocked list
+      current_user.blockedUsers.push(blocked_username);
+
+      //remove this user from the blocked user contacts
+      blocked_user.contacts = blocked_user.contacts.filter(
+        (contact) => contact !== current_user.username
+      );
+      //remove this blocked user from the current user requests
+      current_user.requests = current_user.requests.filter();
+    } catch (error) {}
+  });
+};
+
+deleteEvent = (socket) => {
+  return socket.on("user-delete", async (data) => {
+    try {
+      const { blocked_username } = data;
+
+      const current_user = socket.user;
+
+      const blocked_user = await User.findOne({ username: blocked_username });
+
+      if (!blocked_user) return next(new Error("Username doesn't exist"));
+
+      //add the blocked user to the blocked list
+      current_user.blockedUsers.push(blocked_username);
+
+      //remove this user from the blocked user contacts
+      blocked_user.contacts = blocked_user.contacts.filter(
+        (contact) => contact !== current_user.username
+      );
+      //remove this blocked user from the current user requests
+      current_user.requests = current_user.requests.filter();
+    } catch (error) {}
+  });
+};

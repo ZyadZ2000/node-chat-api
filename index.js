@@ -8,13 +8,24 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const passport = require("passport");
 
+const app = express();
+
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
 /* Node.js core libraries */
 const path = require("path");
 
 /* My own modules */
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
+const userRouter = require("./routes/user");
 const passportStrategies = require("./configuration/passport");
+const { sanitize } = require("../middleware/validate-sanitize");
 
 dotenv.config();
 
@@ -22,7 +33,8 @@ const PORT = process.env.PORT || 3000;
 
 passportStrategies();
 
-const app = express();
+app.use(sanitize);
+
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 
@@ -36,10 +48,13 @@ app.use(cors());
 app.use(passport.initialize());
 
 /* Authentication */
-app.use("/", authRouter);
+app.use("/auth", authRouter);
 
-/* User routes */
-app.use("/", profileRouter);
+/* Profile routes */
+app.use("/profile", profileRouter);
+
+/* Users routes */
+app.use("/user", userRouter);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: "This route doesn't exist" });
@@ -49,10 +64,30 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });
 });
 
+io.use((socket, next) => {
+  const token = socket.handshake.query.token;
+
+  // Use Passport.js to authenticate the JWT token
+  passport.authenticate("jwt", { session: false }, (err, user) => {
+    if (err || !user) {
+      return next(new Error("Authentication error"));
+    }
+
+    // Add user ID to socket object
+    socket.user = user;
+    next();
+  })(socket.request, {}, next);
+});
+
+// Error handling middleware
+io.use((error, socket, next) => {
+  console.error("Socket.IO error:", error.message);
+});
+
 mongoose
   .connect(process.env.MONGO_URI, {
     dbName: process.env.DATABASE_NAME,
   })
   .then(() => {
-    app.listen(PORT);
+    server.listen(PORT);
   });

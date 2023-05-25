@@ -7,21 +7,6 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    receivers: {
-      type: [
-        {
-          type: String,
-          ref: "User",
-        },
-      ],
-      validate: {
-        validator: function (arr) {
-          return arr.length >= 1;
-        },
-        message: "At least one receiver is required.",
-      },
-      required: true,
-    },
     messageContent: {
       type: String,
       required: true,

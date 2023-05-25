@@ -9,10 +9,23 @@ const User = require("../models/user");
 
 const router = express.Router();
 
+/* Google Authentication */
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    session: false,
+  }),
+  authController.googleLogin
+);
+
 /* Local Authentication */
 router.post(
   "/register",
-  sanitize,
   [
     body("email")
       .isEmail()
@@ -50,7 +63,6 @@ router.post(
 
 router.post(
   "/login",
-  sanitize,
   [
     body("email").isEmail().withMessage("Email address is invalid."),
     body("password")
@@ -65,16 +77,14 @@ router.post(
 );
 
 router.post(
-  "/reset-password",
-  sanitize,
+  "/reset/password",
   [body("email").isEmail().withMessage("Email address is invalid.")],
   validate,
   authController.resetPassword
 );
 
 router.post(
-  "/confirm-reset",
-  sanitize,
+  "/reset/confirm",
   [
     body("email").isEmail().withMessage("Email address is invalid."),
     body("password")
@@ -88,18 +98,14 @@ router.post(
   authController.confirmReset
 );
 
-/* Google Authentication */
-router.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    session: false,
-  }),
-  authController.googleLogin
-);
+/**
+ *
+ *
+ * PLEASE IMPLEMENT LOG OUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ *
+ *
+ *
+ *
+ */
 
 module.exports = router;

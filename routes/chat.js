@@ -8,17 +8,20 @@ const User = require("../models/user");
 
 const router = express.Router();
 
+/**************** */
 router.get("/chat/messages");
 
 router.get("/chat/members");
-
-router.post("/chat/request");
+/******************* */
 
 router.post("/chat/create");
 
-router.post("/chat/join");
+router.post("/chat/block");
 
-router.post("/chat/members/add");
+//!!!!!! SOCKET.IO!!!!!!!
+router.post("/chat/messages/send");
+
+router.post("/chat/join");
 
 router.put("/chat/members/remove");
 

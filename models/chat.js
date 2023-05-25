@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 
 const chatSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
   members: [
     {
       type: String,
@@ -10,7 +14,7 @@ const chatSchema = new mongoose.Schema({
         validator: function (arr) {
           return arr.length >= 1;
         },
-        message: "At least one receiver is required.",
+        message: "At least one member is required.",
       },
       required: true,
     },
