@@ -1,34 +1,38 @@
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
 
-const User = require("../models/user");
+const User = require("../../models/user");
 
 dotenv.config();
 
-exports.getProfile = (req, res) => {
+exports.getProfile = async (req, res) => {
+  const user = await User.findById(req.userId);
   return res.status(200).json({
-    email: req.user.email,
-    username: req.user.username,
-    blockedList: req.user.blockedList,
-    blockedChats: req.user.blockedChats,
+    email: user.email,
+    username: user.username,
+    blockedList: user.blockedList,
+    blockedChats: user.blockedChats,
   });
 };
 
-exports.getContacts = (req, res) => {
+exports.getContacts = async (req, res) => {
+  const user = await User.findById(req.userId);
   return res.status(200).json({
-    contacts: req.user.contacts,
+    contacts: user.contacts,
   });
 };
 
-exports.getRequests = (req, res) => {
+exports.getRequests = async (req, res) => {
+  const user = await User.findById(req.userId);
   return res.status(200).json({
-    requests: req.user.requests,
+    requests: user.requests,
   });
 };
 
-exports.getChats = (req, res) => {
+exports.getChats = async (req, res) => {
+  const user = await User.findById(req.userId);
   return res.status(200).json({
-    chats: req.user.chats,
+    chats: user.chats,
   });
 };
 

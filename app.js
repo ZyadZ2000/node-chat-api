@@ -19,7 +19,7 @@ const server = require("http").createServer(app);
 
 /* My own modules */
 const authRouter = require("./endpoints/express/auth");
-//const profileRouter = require("./endpoints/express/profile");
+const profileRouter = require("./endpoints/express/profile");
 //const userRouter = require("./endpoints/user");
 
 const validation = require("./middleware/validate-sanitize");
@@ -49,11 +49,8 @@ app.use(passport.initialize());
 /* Authentication */
 app.use("/auth", authRouter);
 
-// /* Profile routes */
-// app.use("/profile", profileRouter);
-
-// /* Users routes */
-// app.use("/user", userRouter);
+/* Profile routes */
+app.use("/profile", profileRouter);
 
 app.use((req, res, next) => {
   res.status(404).json({ message: "This route doesn't exist" });

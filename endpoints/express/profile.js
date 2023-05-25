@@ -1,34 +1,32 @@
 const express = require("express");
 const { body } = require("express-validator");
-const passport = require("passport");
 
-const profileController = require("../controllers/profile");
-const { validate } = require("../middleware/validate-sanitize");
-const User = require("../models/user");
+const profileController = require("../../controllers/express/profile");
+
+const validation = require("../../middleware/validate-sanitize");
+const authentication = require("../../middleware/authentication");
+
+const User = require("../../models/user");
 
 const router = express.Router();
 
-router.get(
-  "/",
-  passport.authenticate("jwt", { session: false }),
-  profileController.getProfile
-);
+router.get("/", authentication.authenticate_jwt, profileController.getProfile);
 
 router.get(
   "/contacts",
-  passport.authenticate("jwt", { session: false }),
+  authentication.authenticate_jwt,
   profileController.getContacts
 );
 
 router.get(
   "/chats",
-  passport.authenticate("jwt", { session: false }),
+  authentication.authenticate_jwt,
   profileController.getChats
 );
 
 router.get(
   "/requests",
-  passport.authenticate("jwt", { session: false }),
+  authentication.authenticate_jwt,
   profileController.getRequests
 );
 
@@ -47,8 +45,8 @@ router.put(
       .isLength({ min: 6, max: 30 })
       .withMessage("Password must be at least 6 characters."),
   ],
-  validate,
-  passport.authenticate("local", { session: false }),
+  validation.validate,
+  authentication.authenticate_local,
   profileController.changePass
 );
 
@@ -73,8 +71,8 @@ router.put(
         }
       }),
   ],
-  validate,
-  passport.authenticate("local", { session: false }),
+  validation.validate,
+  authentication.authenticate_local,
   profileController.changeEmail
 );
 
@@ -101,8 +99,8 @@ router.put(
         }
       }),
   ],
-  validate,
-  passport.authenticate("local", { session: false }),
+  validation.validate,
+  authentication.authenticate_local,
   profileController.changeUsername
 );
 
