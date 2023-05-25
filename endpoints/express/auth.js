@@ -2,8 +2,10 @@ const express = require("express");
 const { body } = require("express-validator");
 const passport = require("passport");
 
-const authController = require("../../controllers/auth");
-const { validate, sanitize } = require("../../middleware/validate-sanitize");
+const authController = require("../../controllers/express/auth");
+
+const validation = require("../../middleware/validate-sanitize");
+const authentication = require("../../middleware/authentication");
 
 const User = require("../../models/user");
 
@@ -57,7 +59,7 @@ router.post(
       .isLength({ min: 6, max: 30 })
       .withMessage("Password must be at least 6 characters."),
   ],
-  validate,
+  validation.validate,
   authController.register
 );
 
@@ -71,15 +73,15 @@ router.post(
       .isLength({ min: 6, max: 30 })
       .withMessage("Password must be at least 6 characters."),
   ],
-  validate,
-  passport.authenticate("local", { session: false }),
+  validation.validate,
+  authentication.authenticate_local,
   authController.login
 );
 
 router.post(
   "/reset/password",
   [body("email").isEmail().withMessage("Email address is invalid.")],
-  validate,
+  validation.validate,
   authController.resetPassword
 );
 
@@ -94,18 +96,8 @@ router.post(
       .withMessage("Password must be at least 6 characters."),
     body("token").isString().withMessage("Invalid token"),
   ],
-  validate,
+  validation.validate,
   authController.confirmReset
 );
-
-/**
- *
- *
- * PLEASE IMPLEMENT LOG OUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
- *
- *
- *
- *
- */
 
 module.exports = router;

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
 
 const crypto = require("crypto");
+const util = require("util");
 
 const User = require("../../models/user");
 
@@ -34,54 +35,48 @@ exports.register = async (req, res, next) => {
   }
 };
 
-exports.login = (req, res, next) => {
-  const token = jwt.sign({ sub: req.user.id }, process.env.JWT_SECRET, {
+exports.login = (req, res) => {
+  const token = jwt.sign({ userId: req.user.id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
   return res.status(200).send({ token });
 };
 
-exports.googleLogin = (req, res, next) => {
-  const token = jwt.sign({ sub: req.user.id }, process.env.JWT_SECRET, {
+exports.googleLogin = (req, res) => {
+  const token = jwt.sign({ userId: req.user.id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
   return res.status(200).send({ token });
 };
 
-exports.resetPassword = (req, res, next) => {
-  const email = req.body.email;
-  crypto.randomBytes(32, (err, buffer) => {
-    if (err) {
-      return next(err);
-    }
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const email = req.body.email;
+    const user = await User.findOne({ email: email });
+    if (!user) return res.status(404).json({ message: "email not found" });
+
+    const randomBytesAsync = util.promisify(crypto.randomBytes);
+    const buffer = await randomBytesAsync(32);
     const token = buffer.toString("hex");
-    User.findOne({ email: email })
-      .then((user) => {
-        user.token = token;
-        user.tokenExpiration = Date.now() + 3600000;
-        return user.save();
-      })
-      .then((user) => {
-        /*
-          Send Email with a link with the token
-        */
-        return sgMail.send({
-          to: email,
-          from: "zyad.enaba2000@gmail.com",
-          subject: "Password Reset Request",
-          html: `<p>You requested a password reset</p>
-            <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password.</p>`,
-        });
-      })
-      .then(() => {
-        res.status(200).json({ message: "Email sent." });
-      })
-      .catch((err) => {
-        next(err);
-      });
-  });
+
+    user.token = token;
+    user.tokenExpiration = Date.now() + 3600000;
+    await user.save();
+
+    await sgMail.send({
+      to: email,
+      from: "zyad.enaba2000@gmail.com",
+      subject: "Password Reset Request",
+      html: `<p>You requested a password reset</p>
+        <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password.</p>`,
+    });
+
+    return res.status(200).json({ message: "Email sent." });
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.confirmReset = (req, res, next) => {

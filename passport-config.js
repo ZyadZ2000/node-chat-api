@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 
 const crypto = require("crypto");
+const util = require("util");
 
 const User = require("./models/user");
 
@@ -48,14 +49,15 @@ const passportStrategies = () => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:3000/google/callback",
+        callbackURL: "http://localhost:3000/auth/google/callback",
       },
       async function (_, __, profile, done) {
         try {
           const email = profile._json.email;
           const user = await User.findOne({ email: email });
           if (user) return done(null, user);
-          const password = await crypto.randomBytes(32);
+          const randomBytesAsync = util.promisify(crypto.randomBytes);
+          const password = await randomBytesAsync(32);
           const hashedPassword = await bcrypt.hash(
             password.toString("hex"),
             Number(process.env.BCRYPT_SALT_ROUNDS)
