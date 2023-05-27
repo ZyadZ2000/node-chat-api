@@ -15,7 +15,6 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  /* Username is gonna be used to identify other users, create a username index to optimize the query */
   contacts: [
     {
       type: String,

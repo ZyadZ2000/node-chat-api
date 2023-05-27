@@ -3,7 +3,7 @@ const { body } = require("express-validator");
 
 const profileController = require("../../controllers/express/profile");
 
-const validation = require("../../middleware/validate-sanitize");
+const validation = require("../../middleware/validation");
 const authentication = require("../../middleware/authentication");
 
 const User = require("../../models/user");

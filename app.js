@@ -26,10 +26,7 @@ const authRouter = require("./endpoints/express/auth");
 const profileRouter = require("./endpoints/express/profile");
 
 /* Socket.io handlers */
-const userHandlers = require("./endpoints/socket.io/user");
-
-/* Middleware for validation */
-const validation = require("./middleware/validate-sanitize");
+const registerUserHandlers = require("./endpoints/socket.io/user");
 
 /* A function that creates passport strategies */
 const passportStrategies = require("./passport-config");
@@ -37,13 +34,13 @@ const passportStrategies = require("./passport-config");
 /* A function that implements a cache for JWT */
 const verifyAndCacheToken = require("./jwt-cache");
 
+const JoiSchemas = require("./joi-schemas");
+
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
 passportStrategies();
-
-app.use(validation.sanitize);
 
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
@@ -74,6 +71,12 @@ app.use((err, req, res, next) => {
 io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) return next(new Error("Not authenticated"));
+
+  const { error } = JoiSchemas.jwtSchema.validate(token);
+  if (error) {
+    return next(new Error("Not authenticated"));
+  }
+
   let decodedToken;
   try {
     decodedToken = await verifyAndCacheToken(token);
@@ -89,22 +92,25 @@ io.on("connection", (socket) => {
   /* You can also sanitize here */
   socket.join(socket.userId);
 
-  socket.use(async (_, next) => {
+  socket.use(async ([event, ...args], next) => {
     const token = socket.handshake.auth.token;
     if (!token) return next(new Error("Not authenticated"));
 
-    // const decodedToken = await verifyAndCacheToken(token);
+    const { error } = JoiSchemas.jwtSchema.validate(token);
+    if (error) {
+      return next(new Error("Not authenticated"));
+    }
+
     try {
       await verifyAndCacheToken(token);
     } catch (error) {
       return next(new Error("Not authenticated"));
     }
-    // socket.userId = decodedToken.userId;
-    // socket.join(socket.userId);
+
     next();
   });
 
-  userHandlers(io, socket);
+  registerUserHandlers(io, socket);
 
   socket.on("error", (err) => {
     io.to(socket.id).emit("error", err.message);
@@ -123,11 +129,3 @@ mongoose
   .then(() => {
     server.listen(PORT);
   });
-
-/**
- * Flow of socket.io:
- * The user always sends a jwt in the auth in the handshake, along with additional data, whether he is sending a message or a request or blocking a user.
- * The socket middleware checks whether this jwt is in the cache, if it's it will continue with the middleware
- * On any server error you can call next(new Error) which triggers an error on the server on the "error" event, handle the error there.
- * when the client connects for the first time, the socket joins the room identified by the username
- */
