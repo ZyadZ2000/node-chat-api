@@ -2,8 +2,8 @@
 // const { body } = require("express-validator");
 // const passport = require("passport");
 
-const User = require("../models/user");
-
+const User = require("../../models/user");
+//let {io} = require("../../io_instance");
 // const userController = require("../controllers/user");
 // const { validate } = require("../middleware/validate-sanitize");
 // const User = require("../models/user");
@@ -104,5 +104,15 @@ deleteEvent = (socket) => {
       //remove this blocked user from the current user requests
       current_user.requests = current_user.requests.filter();
     } catch (error) {}
+  });
+};
+
+module.exports = () => {
+  if (!global.io) return;
+  global.io.on("connection", (socket) => {
+    socket.emit("message", "message");
+    socket.on("disconnect", () => {
+      console.log(`User disconnected: ${socket.userId}`);
+    });
   });
 };

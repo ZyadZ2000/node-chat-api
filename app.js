@@ -11,20 +11,21 @@ const passport = require("passport");
 const app = express();
 
 const server = require("http").createServer(app);
-// const io = require("socket.io")(server, {
-//   cors: {
-//     origin: "*",
-//   },
-// });
+
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 /* My own modules */
 const authRouter = require("./endpoints/express/auth");
 const profileRouter = require("./endpoints/express/profile");
-//const userRouter = require("./endpoints/user");
 
 const validation = require("./middleware/validate-sanitize");
 
 const passportStrategies = require("./passport-config");
+const verifyAndCacheToken = require("./jwt-cache");
 
 dotenv.config();
 
@@ -52,7 +53,7 @@ app.use("/auth", authRouter);
 /* Profile routes */
 app.use("/profile", profileRouter);
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(404).json({ message: "This route doesn't exist" });
 });
 
@@ -60,25 +61,47 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });
 });
 
-// io.use((socket, next) => {
-//   const token = socket.handshake.query.token;
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (!token) return next(new Error("Not authenticated"));
 
-//   // Use Passport.js to authenticate the JWT token
-//   passport.authenticate("jwt", { session: false }, (err, user) => {
-//     if (err || !user) {
-//       return next(new Error("Authentication error"));
-//     }
+  let decodedToken;
 
-//     // Add user ID to socket object
-//     socket.user = user;
-//     next();
-//   })(socket.request, {}, next);
-// });
+  try {
+    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return next(new Error("Server Error"));
+  }
 
-// // Error handling middleware
-// io.use((error, socket, next) => {
-//   console.error("Socket.IO error:", error.message);
-// });
+  if (!decodedToken) {
+    return next(new Error("Not authenticated"));
+  }
+  socket.userId = decodedToken.userId;
+  next();
+});
+
+io.on("connection", (socket) => {
+  /* You can also sanitize here */
+  socket.use(async ([event, ...args], next) => {
+    try {
+      const token = args[0].token || args[0];
+      if (!token) return next(new Error("Not authenticated"));
+
+      const decodedToken = await verifyAndCacheToken(token);
+
+      socket.userId = decodedToken.userId;
+      socket.join(socket.userId);
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  socket.on("error", (err) => {
+    socket.to(socket.id).emit("error", err.message);
+    if (err.message === "Not authenticated") socket.disconnect();
+  });
+});
 
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -87,3 +110,11 @@ mongoose
   .then(() => {
     server.listen(PORT);
   });
+
+/**
+ * Flow of socket.io:
+ * The user always sends a jwt in the auth in the handshake, along with additional data, whether he is sending a message or a request or blocking a user.
+ * The socket middleware checks whether this jwt is in the cache, if it's it will continue with the middleware
+ * On any server error you can call next(new Error) which triggers an error on the server on the "error" event, handle the error there.
+ * when the client connects for the first time, the socket joins the room identified by the username
+ */
