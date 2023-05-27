@@ -74,7 +74,12 @@ app.use((err, req, res, next) => {
 io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) return next(new Error("Not authenticated"));
-  const decodedToken = await verifyAndCacheToken(token);
+  let decodedToken;
+  try {
+    decodedToken = await verifyAndCacheToken(token);
+  } catch (error) {
+    return next(new Error("Not authenticated"));
+  }
   socket.userId = decodedToken.userId;
   socket.join(socket.userId);
   next();
@@ -82,25 +87,27 @@ io.use(async (socket, next) => {
 
 io.on("connection", (socket) => {
   /* You can also sanitize here */
-  socket.use(async ([event, ...args], next) => {
+  socket.join(socket.userId);
+
+  socket.use(async (_, next) => {
+    const token = socket.handshake.auth.token;
+    if (!token) return next(new Error("Not authenticated"));
+
+    // const decodedToken = await verifyAndCacheToken(token);
     try {
-      const token = args[0].token || args[0];
-      if (!token) return next(new Error("Not authenticated"));
-
-      const decodedToken = await verifyAndCacheToken(token);
-
-      socket.userId = decodedToken.userId;
-      socket.join(socket.userId);
-      next();
+      await verifyAndCacheToken(token);
     } catch (error) {
-      next(error);
+      return next(new Error("Not authenticated"));
     }
+    // socket.userId = decodedToken.userId;
+    // socket.join(socket.userId);
+    next();
   });
 
-  userHandlers(socket);
+  userHandlers(io, socket);
 
   socket.on("error", (err) => {
-    socket.to(socket.id).emit("error", err.message);
+    io.to(socket.id).emit("error", err.message);
     if (err.message === "Not authenticated") socket.disconnect();
   });
 
