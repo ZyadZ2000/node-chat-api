@@ -8,23 +8,33 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const passport = require("passport");
 
+/* Initializing the express server */
 const app = express();
 
+/* Creating an http server and registering the express server to handle endpoints */
 const server = require("http").createServer(app);
 
+/* Creation of the socket.io server */
 const io = require("socket.io")(server, {
   cors: {
     origin: "*",
   },
 });
 
-/* My own modules */
+/* Express routers */
 const authRouter = require("./endpoints/express/auth");
 const profileRouter = require("./endpoints/express/profile");
 
+/* Socket.io handlers */
+const userHandlers = require("./endpoints/socket.io/user");
+
+/* Middleware for validation */
 const validation = require("./middleware/validate-sanitize");
 
+/* A function that creates passport strategies */
 const passportStrategies = require("./passport-config");
+
+/* A function that implements a cache for JWT */
 const verifyAndCacheToken = require("./jwt-cache");
 
 dotenv.config();
@@ -61,22 +71,12 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });
 });
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) return next(new Error("Not authenticated"));
-
-  let decodedToken;
-
-  try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (error) {
-    return next(new Error("Server Error"));
-  }
-
-  if (!decodedToken) {
-    return next(new Error("Not authenticated"));
-  }
+  const decodedToken = await verifyAndCacheToken(token);
   socket.userId = decodedToken.userId;
+  socket.join(socket.userId);
   next();
 });
 
@@ -97,9 +97,15 @@ io.on("connection", (socket) => {
     }
   });
 
+  userHandlers(socket);
+
   socket.on("error", (err) => {
     socket.to(socket.id).emit("error", err.message);
     if (err.message === "Not authenticated") socket.disconnect();
+  });
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
   });
 });
 

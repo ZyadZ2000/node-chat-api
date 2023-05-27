@@ -107,12 +107,11 @@ deleteEvent = (socket) => {
   });
 };
 
-module.exports = () => {
-  if (!global.io) return;
-  global.io.on("connection", (socket) => {
-    socket.emit("message", "message");
-    socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.userId}`);
-    });
+module.exports = (socket) => {
+  // socket.on("user:block");
+  // socket.on("user:delete");
+  socket.on("hello", (data) => {
+    console.log("received");
+    socket.to(socket.userId).emit("message", "hello from server");
   });
 };
