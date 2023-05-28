@@ -27,6 +27,7 @@ const profileRouter = require("./endpoints/express/profile");
 
 /* Socket.io handlers */
 const registerUserHandlers = require("./endpoints/socket.io/user");
+const registerChatHandlers = require("./endpoints/socket.io/chat");
 
 /* A function that creates passport strategies */
 const passportStrategies = require("./passport-config");
@@ -110,6 +111,8 @@ io.on("connection", (socket) => {
   });
 
   registerUserHandlers(io, socket);
+
+  registerChatHandlers(io, socket);
 
   socket.on("error", (err) => {
     io.to(socket.id).emit("error", err.message);

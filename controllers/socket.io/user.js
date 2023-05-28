@@ -32,10 +32,13 @@ exports.user_blockHandler = async (io, socket, data, callback) => {
     //add the blocked user to the blocked list
     currentUser.blockedUsers.push(blockedUser.id);
 
+    let requestId = null;
     //remove this blocked user from the current user requests
-    currentUser.requests = currentUser.requests.filter(
-      (request) => !(request.from == blockedUser.id)
-    );
+    currentUser.requests = currentUser.requests.filter((request) => {
+      if (!(request.from == blockedUser.id)) return true;
+      requestId = request.id;
+      return false;
+    });
 
     blockedUser.requests = blockedUser.requests.filter(
       (request) => !(request.to == currentUser.id)
@@ -50,10 +53,7 @@ exports.user_blockHandler = async (io, socket, data, callback) => {
       (contact) => !(contact == currentUser.id)
     );
 
-    /*
-      Delete the request from the database
-    */
-
+    if (requestId) await Request.findByIdAndDelete(requestId);
     await currentUser.save();
     await blockedUser.save();
 
