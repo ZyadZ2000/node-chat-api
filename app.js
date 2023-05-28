@@ -83,16 +83,15 @@ io.use(async (socket, next) => {
   } catch (error) {
     return next(new Error("Not authenticated"));
   }
+
   socket.userId = decodedToken.userId;
-  socket.join(socket.userId);
   next();
 });
 
 io.on("connection", (socket) => {
-  /* You can also sanitize here */
   socket.join(socket.userId);
 
-  socket.use(async ([event, ...args], next) => {
+  socket.use(async (_, next) => {
     const token = socket.handshake.auth.token;
     if (!token) return next(new Error("Not authenticated"));
 
@@ -114,7 +113,7 @@ io.on("connection", (socket) => {
 
   socket.on("error", (err) => {
     io.to(socket.id).emit("error", err.message);
-    if (err.message === "Not authenticated") socket.disconnect();
+    if (err.message.startsWith("Not authenticated")) socket.disconnect();
   });
 
   socket.on("disconnect", () => {

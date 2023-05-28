@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 
 const User = require("../../models/user");
 
+const Request = require("../../models/request");
+
 dotenv.config();
 
 exports.getProfile = async (req, res) => {
@@ -10,7 +12,7 @@ exports.getProfile = async (req, res) => {
   return res.status(200).json({
     email: user.email,
     username: user.username,
-    blockedList: user.blockedList,
+    blockedUsers: user.blockedUsers,
     blockedChats: user.blockedChats,
   });
 };
@@ -23,7 +25,12 @@ exports.getContacts = async (req, res) => {
 };
 
 exports.getRequests = async (req, res) => {
-  const user = await User.findById(req.userId);
+  // Register the Request model with Mongoose
+  Request.init();
+  const user = await User.findById(req.userId).populate({
+    path: "requests",
+    options: { autoCreate: true },
+  });
   return res.status(200).json({
     requests: user.requests,
   });

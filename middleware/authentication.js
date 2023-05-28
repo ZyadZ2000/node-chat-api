@@ -6,7 +6,7 @@ dotenv.config();
 
 const User = require("../models/user");
 
-exports.authenticate_jwt = (req, res, next) => {
+exports.authenticate_jwt = async (req, res, next) => {
   let decodedToken;
   const authHeader = req.get("Authorization");
   if (!authHeader) {
@@ -21,6 +21,7 @@ exports.authenticate_jwt = (req, res, next) => {
   if (!decodedToken) {
     return res.status(401).json({ message: "Not authenticated" });
   }
+
   req.userId = decodedToken.userId;
   next();
 };

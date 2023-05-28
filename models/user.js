@@ -16,47 +16,40 @@ const userSchema = new mongoose.Schema({
     unique: true,
   },
   contacts: [
+    /* References another user */
     {
-      type: String,
-      default: [],
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: [],
     },
   ],
   chats: [
+    /* References a chat */
     {
       type: mongoose.Schema.Types.ObjectId,
-      default: [],
       ref: "Chat",
+      default: [],
     },
   ],
   blockedUsers: [
     {
-      type: String,
-      default: [],
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: [],
     },
   ],
   blockedChats: [
+    /* References a chat */
     {
       type: mongoose.Schema.Types.ObjectId,
-      default: [],
       ref: "Chat",
+      default: [],
     },
   ],
   requests: [
     {
-      type: {
-        from: {
-          type: String,
-          ref: "User",
-          required: true,
-        },
-        /* Request types: chat request (a group or a private chat), contact request, */
-        requestType: {
-          type: String,
-          required: true,
-        },
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Request",
       default: [],
     },
   ],

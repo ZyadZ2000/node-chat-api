@@ -1,17 +1,25 @@
-// const express = require("express");
-// const { body } = require("express-validator");
-// const passport = require("passport");
+const requestHandlers = require("../../controllers/socket.io/requset");
 
-// const requestController = require("../controllers/request");
-// const { validate } = require("../middleware/validate-sanitize");
-// const User = require("../models/user");
-
-// const router = express.Router();
-
-// /* Both of these would be with socket.io */
-// router.post("/send");
-// router.post("/accept");
-
-// router.delete("/");
-
-// module.exports = router;
+module.exports = (io, socket) => {
+  socket.on("request:send", async (data, callback) => {
+    try {
+      await requestHandlers.request_sendHandler(io, socket, data, callback);
+    } catch (error) {
+      return callback({ success: false, error });
+    }
+  });
+  socket.on("request:accept", async (data, callback) => {
+    try {
+      await requestHandlers.request_acceptHandler(io, socket, data, callback);
+    } catch (error) {
+      return callback({ success: false, error });
+    }
+  });
+  socket.on("request:delete", async (data, callback) => {
+    try {
+      await requestHandlers.request_deleteHandler(io, socket, data, callback);
+    } catch (error) {
+      return callback({ success: false, error });
+    }
+  });
+};

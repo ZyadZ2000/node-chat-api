@@ -4,7 +4,6 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 //const JwtStrategy = require("passport-jwt").Strategy;
 //const ExtractJwt = require("passport-jwt").ExtractJwt;
 const bcrypt = require("bcrypt");
-const { v4: uuidv4 } = require("uuid");
 
 const crypto = require("crypto");
 const util = require("util");
@@ -65,7 +64,7 @@ const passportStrategies = () => {
           const newUser = new User({
             email: email,
             password: hashedPassword,
-            username: uuidv4(),
+            username: email,
           });
           await newUser.save();
           return done(null, newUser);

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { v4: uuidv4 } = require("uuid");
 
 const chatSchema = new mongoose.Schema({
   name: {
@@ -7,8 +6,9 @@ const chatSchema = new mongoose.Schema({
     required: true,
   },
   members: [
+    /* References users */
     {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       validate: {
         validator: function (arr) {
@@ -27,14 +27,10 @@ const chatSchema = new mongoose.Schema({
     },
   ],
   creator: {
-    type: String,
+    /* References a user */
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
-  },
-  inviteId: {
-    type: String,
-    required: true,
-    default: uuidv4,
   },
 });
 
