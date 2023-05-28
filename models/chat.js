@@ -5,20 +5,18 @@ const chatSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  members: [
-    /* References users */
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      validate: {
-        validator: function (arr) {
-          return arr.length >= 1;
-        },
-        message: "At least one member is required.",
+  members: {
+    type: Map,
+    of: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    validate: {
+      validator: function (map) {
+        return map.size >= 1;
       },
-      required: true,
+      message: "At least one member is required.",
     },
-  ],
+    required: true,
+    default: new Map(),
+  },
   messages: [
     {
       type: mongoose.Schema.Types.ObjectId,
