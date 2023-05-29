@@ -9,60 +9,69 @@ dotenv.config();
 
 exports.getProfile = async (req, res, next) => {
   try {
-    Chat.init();
-    const user = await User.findById(req.userId)
-      .populate({ path: "blockedUsers", select: "username _id" })
-      .populate({ path: "blockedChats", select: "name _id" });
+    const user = await User.findById(req.userId);
+    const blockedUsersPromises = Array.from(user.blockedUsers.keys()).map(
+      (userId) => User.findById(userId).select("username _id")
+    );
+    const blockedChatsPromises = Array.from(user.blockedChats.keys()).map(
+      (chatId) => Chat.findById(chatId).select("name _id")
+    );
+
+    const [blockedUsers, blockedChats] = await Promise.all([
+      Promise.all(blockedUsersPromises),
+      Promise.all(blockedChatsPromises),
+    ]);
     return res.status(200).json({
       email: user.email,
       username: user.username,
-      blockedUsers: user.blockedUsers,
-      blockedChats: user.blockedChats,
+      blockedUsers: blockedUsers,
+      blockedChats: blockedChats,
     });
   } catch (error) {
     next(error);
   }
 };
 
-exports.getContacts = async (req, res) => {
+exports.getContacts = async (req, res, next) => {
   try {
-    const user = await User.findById(req.userId).populate({
-      path: "contacts",
-      select: "username _id",
-    });
+    const user = await User.findById(req.userId).select("contacts");
+    const contactsPromises = Array.from(user.contacts.keys()).map((userId) =>
+      User.findById(userId).select("username _id")
+    );
+    const contacts = Promise.all(contactsPromises);
     return res.status(200).json({
-      contacts: user.contacts,
+      contacts: contacts,
     });
   } catch (error) {
     next(error);
   }
 };
 
-exports.getRequests = async (req, res) => {
+exports.getRequests = async (req, res, next) => {
   try {
-    // Register the Request model with Mongoose
-    Request.init();
-    const user = await User.findById(req.userId).populate({
-      path: "requests",
-      options: { autoCreate: true },
-    });
+    const user = await User.findById(req.userId).select("requests");
+    const requestsPromises = Array.from(user.requests.keys()).map((reqId) =>
+      Request.findById(reqId)
+    );
+    const requests = Promise.all(requestsPromises);
     return res.status(200).json({
-      requests: user.requests,
+      requests: requests,
     });
   } catch (error) {
     next(error);
   }
 };
 
-exports.getChats = async (req, res) => {
+exports.getChats = async (req, res, next) => {
   try {
-    Chat.init();
-    const user = await User.findById(req.userId).populate({
-      path: "chats",
-      select: "name _id",
-    });
+    const user = await User.findById(req.userId).select("chats");
+    const chatsPromises = Array.from(user.chats.keys()).map((chatId) =>
+      Chat.findById(chatId).select("name _id")
+    );
+
+    const chats = await Promise.all(chatsPromises);
     return res.status(200).json({
-      chats: user.chats,
+      chats: chats,
     });
   } catch (error) {
     next(error);
@@ -94,7 +103,7 @@ exports.changeEmail = async (req, res, next) => {
   }
 };
 
-exports.changeUsername = async (req, res) => {
+exports.changeUsername = async (req, res, next) => {
   try {
     const { new_username } = req.body;
     req.user.username = new_username;

@@ -21,10 +21,14 @@ exports.chat_createHandler = async (io, socket, data, callback) => {
     let chat = new Chat({
       name: chatName,
       creator: creator.id,
-      members: new Map([creator.id, true]),
     });
 
+    chat.members = new Map();
+    chat.members.set(creator.id, true);
+
     chat = await chat.save({ session });
+
+    console.log("here");
 
     creator.chats.set(chat.id, true);
 

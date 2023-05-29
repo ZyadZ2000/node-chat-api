@@ -25,6 +25,4 @@ module.exports = (data) => {
     if (result.error)
       throw new Error(`Invalid data, error message: ${result.error.message} `);
   });
-
-  return true;
 };

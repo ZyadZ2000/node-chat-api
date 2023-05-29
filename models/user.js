@@ -17,31 +17,31 @@ const userSchema = new mongoose.Schema({
   },
   contacts: {
     type: Map,
-    of: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    of: Boolean,
     default: new Map(),
   },
 
   chats: {
     type: Map,
-    of: { type: mongoose.Schema.Types.ObjectId, ref: "Chat" },
+    of: Boolean, //{ type: mongoose.Schema.Types.ObjectId, ref: "Chat" },
     default: new Map(),
   },
 
   blockedUsers: {
     type: Map,
-    of: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    of: Boolean,
     default: new Map(),
   },
 
   blockedChats: {
     type: Map,
-    of: { type: mongoose.Schema.Types.ObjectId, ref: "Chat" },
+    of: Boolean,
     default: new Map(),
   },
 
   requests: {
     type: Map,
-    of: { type: mongoose.Schema.Types.ObjectId, ref: "Request" },
+    of: Boolean,
     default: new Map(),
   },
   token: {

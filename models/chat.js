@@ -1,3 +1,4 @@
+const { boolean } = require("joi");
 const mongoose = require("mongoose");
 
 const chatSchema = new mongoose.Schema({
@@ -7,13 +8,7 @@ const chatSchema = new mongoose.Schema({
   },
   members: {
     type: Map,
-    of: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    validate: {
-      validator: function (map) {
-        return map.size >= 1;
-      },
-      message: "At least one member is required.",
-    },
+    of: Boolean, //{ type: mongoose.Schema.Types.ObjectId, ref: "User" },
     required: true,
     default: new Map(),
   },
@@ -32,6 +27,6 @@ const chatSchema = new mongoose.Schema({
   },
 });
 
-const Chat = mongoose.Model("Chat", chatSchema);
+const Chat = mongoose.model("Chat", chatSchema);
 
 module.exports = Chat;

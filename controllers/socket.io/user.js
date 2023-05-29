@@ -1,121 +1,114 @@
 const User = require("../../models/user");
 const Request = require("../../models/request");
-const JoiSchemas = require("../../joi-schemas");
+
+const dataValidation = require("../../helper/socket-data-validation");
+const { default: mongoose } = require("mongoose");
 
 exports.user_blockHandler = async (io, socket, data, callback) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
+    dataValidation(data);
+
     let alreadyBlocked = false;
 
     const userId = data.userId;
 
     if (!userId) throw new Error("User ID must be provided");
 
-    const { error } = JoiSchemas.mongoIdSchema.validate(userId);
+    const currentUser = await User.findById(socket.userId).session(session);
 
-    if (error) {
-      throw new Error("Invalid User ID");
-    }
-
-    Request.init();
-
-    const currentUser = await User.findById(socket.userId).populate("requests");
-
-    const blockedUser = await User.findById(userId).populate("requests");
+    const blockedUser = await User.findById(userId).session(session);
 
     if (!blockedUser || !currentUser) throw new Error("User(s) doesn't exist");
 
-    alreadyBlocked = currentUser.blockedUsers.find((user) => {
-      return user == blockedUser.id;
-    });
+    alreadyBlocked = currentUser.blockedUsers.has(blockedUser.id);
+
+    console.log(alreadyBlocked);
 
     if (alreadyBlocked) return callback({ success: true });
     //add the blocked user to the blocked list
-    currentUser.blockedUsers.push(blockedUser.id);
+    currentUser.blockedUsers.set(blockedUser.id, true);
 
-    let requestId = null;
-    //remove this blocked user from the current user requests
-    currentUser.requests = currentUser.requests.filter((request) => {
-      if (!(request.from == blockedUser.id)) return true;
-      requestId = request.id;
-      return false;
-    });
+    console.log(currentUser);
 
-    blockedUser.requests = blockedUser.requests.filter(
-      (request) => !(request.to == currentUser.id)
-    );
+    const requests = await Request.find({
+      $or: [
+        { $and: [{ to: currentUser.id }, { from: blockedUser.id }] },
+        { $and: [{ to: blockedUser.id }, { from: currentUser.id }] },
+      ],
+    }).session(session);
 
-    currentUser.contacts = currentUser.contacts.filter((contact) => {
-      return !(contact == blockedUser.id);
-    });
+    for (const request of requests) {
+      currentUser.requests.delete(request.id);
+      blockedUser.requests.delete(request.id);
+      await Request.deleteOne({ _id: request.id }).session(session);
+    }
+
+    currentUser.contacts.delete(blockedUser.id);
 
     //remove this user from the blocked user contacts
-    blockedUser.contacts = blockedUser.contacts.filter(
-      (contact) => !(contact == currentUser.id)
-    );
+    blockedUser.contacts.delete(currentUser.id);
 
-    if (requestId) await Request.findByIdAndDelete(requestId);
-    await currentUser.save();
-    await blockedUser.save();
+    await currentUser.save({ session });
+    await blockedUser.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
 
     callback({ success: true });
 
     io.to(blockedUser.id).to(currentUser.id).emit("user:block", {
-      by: currentUser.id,
-      blocked: blockedUser.id,
+      by: currentUser.username,
+      blocked: blockedUser.username,
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.log(error);
     throw error;
   }
 };
 
 exports.user_deleteContactHandler = async (io, socket, data, callback) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
+    dataValidation(data);
+
     const userId = data.userId;
 
     if (!userId) throw new Error("User ID must be provided");
 
-    const { error } = JoiSchemas.mongoIdSchema.validate(userId);
+    const currentUser = await User.findById(socket.userId).session(session);
 
-    if (error) {
-      throw new Error("Invalid User ID");
-    }
-
-    const currentUser = await User.findById(socket.userId);
-
-    const deletedContact = await User.findById(userId);
-
-    console.log(currentUser);
-    console.log(deletedContact);
+    const deletedContact = await User.findById(userId).session(session);
 
     if (!deletedContact || !currentUser)
       throw new Error("User(s) doesn't exist");
 
-    let isContact = false;
-
-    currentUser.contacts = currentUser.contacts.filter((contact) => {
-      if (contact == deletedContact.id) {
-        isContact = true;
-        return false;
-      }
-      return true;
-    });
+    let isContact = currentUser.contacts.has(deletedContact.id);
 
     if (!isContact) return callback({ success: true });
 
-    deletedContact.contacts = deletedContact.contacts.filter(
-      (contact) => !(contact == currentUser.id)
-    );
+    currentUser.contacts.delete(deletedContact.id);
+    deletedContact.contacts.delete(currentUser.id);
 
-    await currentUser.save();
-    await deletedContact.save();
+    await currentUser.save({ session });
+    await deletedContact.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
 
     callback({ success: true });
 
     io.to(deletedContact.id).to(currentUser.id).emit("user:deleteContact", {
-      by: currentUser.id,
-      deleted: deletedContact.id,
+      by: currentUser.username,
+      deleted: deletedContact.username,
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     throw error;
   }
 };
