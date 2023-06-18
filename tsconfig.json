@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "typeRoots": ["./typings"],
     "module": "NodeNext",
     "esModuleInterop": true,
     "target": "ES2020",

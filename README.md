@@ -14,3 +14,6 @@ Add multer for file uploading
 Add functionality for video/audio calls using webRTC
 
 Add testing
+
+Done:
+Added photo and status to user model

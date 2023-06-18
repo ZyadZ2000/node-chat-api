@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Model } from "mongoose";
+import type IMessage from "../typings/models/message.d.ts";
 
-const messageSchema = new mongoose.Schema(
+const messageSchema: Schema<IMessage> = new mongoose.Schema(
   {
     sender: {
       type: mongoose.Schema.Types.ObjectId,
@@ -15,6 +16,9 @@ const messageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Message = mongoose.model("Message", messageSchema);
+const Message: Model<IMessage> = mongoose.model<IMessage>(
+  "Room",
+  messageSchema
+);
 
 export default Message;

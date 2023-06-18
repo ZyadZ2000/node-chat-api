@@ -3,9 +3,9 @@ import bcrypt from "bcrypt";
 
 import User from "../../models/user.js";
 import Request from "../../models/request.js";
-import Chat from "../../models/chat.js";
+import Chat from "../../models/room.js";
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 export const getProfile = async (req, res, next) => {
   try {

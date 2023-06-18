@@ -8,7 +8,7 @@ import util from "util";
 
 import User from "../../models/user.js";
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 

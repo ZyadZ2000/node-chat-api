@@ -1,10 +1,12 @@
+/* Importing Types */
+import type { SocketWithUserId } from "./types-extensions.js";
+
 /* Third party libraries */
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-``;
 import helmet from "helmet";
 import morgan from "morgan";
 import passport from "passport";
@@ -32,7 +34,7 @@ import passportStrategies from "./passport-config.js";
 import verifyAndCacheToken from "./jwt-cache.js";
 import * as JoiSchemas from "./joi-schemas.js";
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 const PORT = process.env.PORT || 3000;
 
@@ -63,10 +65,6 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });
 });
-
-interface SocketWithUserId extends Socket {
-  userId: string;
-}
 
 io.use(async (socket: SocketWithUserId, next) => {
   const token = socket.handshake.auth.token;

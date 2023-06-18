@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
+import type IRequest from "../typings/models/request.d.ts";
 
-const requestSchema = new mongoose.Schema({
+const requestSchema: Schema<IRequest> = new mongoose.Schema({
   sender: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -23,6 +24,9 @@ const requestSchema = new mongoose.Schema({
   },
 });
 
-const Request = mongoose.model("Request", requestSchema);
+const Request: Model<IRequest> = mongoose.model<IRequest>(
+  "Request",
+  requestSchema
+);
 
 export default Request;

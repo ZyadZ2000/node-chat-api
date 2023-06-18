@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import User from "../../models/user.js";
-import Chat from "../../models/chat.js";
+import Chat from "../../models/room.js";
 import * as JoiSchemas from "../../joi-schemas.js";
 
 export const request_sendHandler = async (io, socket, data, callback) => {

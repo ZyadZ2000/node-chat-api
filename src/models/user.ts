@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
+import type IUser from "../typings/models/user.js";
 
-const userSchema = new mongoose.Schema({
+const userSchema: Schema<IUser> = new mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -15,34 +16,39 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  photo: {
+    type: String,
+    default: null,
+  },
   contacts: {
     type: Map,
-    of: Boolean,
-    default: new Map(),
+    of: null,
+    default: new Map<mongoose.Schema.Types.ObjectId, null>(),
   },
-
-  chats: {
+  rooms: {
     type: Map,
-    of: Boolean, //{ type: mongoose.Schema.Types.ObjectId, ref: "Chat" },
-    default: new Map(),
+    of: null,
+    default: new Map<mongoose.Schema.Types.ObjectId, null>(),
   },
-
   blockedUsers: {
     type: Map,
-    of: Boolean,
-    default: new Map(),
+    of: null,
+    default: new Map<mongoose.Schema.Types.ObjectId, null>(),
   },
-
   blockedChats: {
     type: Map,
-    of: Boolean,
-    default: new Map(),
+    of: null,
+    default: new Map<mongoose.Schema.Types.ObjectId, null>(),
   },
-
   requests: {
     type: Map,
-    of: Boolean,
-    default: new Map(),
+    of: null,
+    default: new Map<mongoose.Schema.Types.ObjectId, null>(),
+  },
+  status: {
+    type: String,
+    enum: ["online", "offline"],
+    default: "offline",
   },
   token: {
     type: String,
@@ -54,6 +60,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const User = mongoose.model("User", userSchema);
+const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 
 export default User;
