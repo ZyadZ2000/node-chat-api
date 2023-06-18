@@ -1,6 +1,6 @@
-const chatHandlers = require("../../controllers/socket.io/chat");
+import * as chatHandlers from "../../controllers/socket.io/chat.js";
 
-module.exports = (io, socket) => {
+export default (io, socket) => {
   socket.on("chat:create", async (data, callback) => {
     try {
       await chatHandlers.chat_createHandler(io, socket, data, callback);

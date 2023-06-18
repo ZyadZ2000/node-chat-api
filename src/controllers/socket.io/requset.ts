@@ -1,10 +1,10 @@
-const { v4: uuidv4 } = require("uuid");
+import { v4 as uuidv4 } from "uuid";
 
-const User = require("../../models/user");
-const Chat = require("../../models/chat");
-const JoiSchemas = require("../../joi-schemas");
+import User from "../../models/user.js";
+import Chat from "../../models/chat.js";
+import * as JoiSchemas from "../../joi-schemas.js";
 
-exports.request_sendHandler = async (io, socket, data, callback) => {
+export const request_sendHandler = async (io, socket, data, callback) => {
   try {
     const request = data.request;
 
@@ -127,7 +127,7 @@ exports.request_sendHandler = async (io, socket, data, callback) => {
   }
 };
 
-exports.request_acceptHandler = async (io, socket, data, callback) => {
+export const request_acceptHandler = async (io, socket, data, callback) => {
   try {
     const request = data.request;
 
@@ -250,7 +250,7 @@ exports.request_acceptHandler = async (io, socket, data, callback) => {
   }
 };
 
-exports.request_deleteHandler = async (io, socket, data, callback) => {
+export const request_deleteHandler = async (io, socket, data, callback) => {
   try {
     if (!data.username || !data.request)
       throw new Error("Username and request must be provided");

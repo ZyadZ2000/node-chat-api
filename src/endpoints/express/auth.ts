@@ -1,13 +1,13 @@
-const express = require("express");
-const { body } = require("express-validator");
-const passport = require("passport");
+import express from "express";
+import { body } from "express-validator";
+import passport from "passport";
 
-const authController = require("../../controllers/express/auth");
+import * as authController from "../../controllers/express/auth.js";
 
-const validation = require("../../middleware/validation");
-const authentication = require("../../middleware/authentication");
+import * as validation from "../../middleware/validation.js";
+import * as authentication from "../../middleware/authentication.js";
 
-const User = require("../../models/user");
+import User from "../../models/user.js";
 
 const router = express.Router();
 
@@ -100,4 +100,4 @@ router.post(
   authController.confirmReset
 );
 
-module.exports = router;
+export default router;

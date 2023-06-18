@@ -1,6 +1,6 @@
-const requestHandlers = require("../../controllers/socket.io/requset");
+import * as requestHandlers from "../../controllers/socket.io/requset.js";
 
-module.exports = (io, socket) => {
+export default (io, socket) => {
   socket.on("request:send", async (data, callback) => {
     try {
       await requestHandlers.request_sendHandler(io, socket, data, callback);

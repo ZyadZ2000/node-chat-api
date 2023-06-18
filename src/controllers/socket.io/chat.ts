@@ -1,12 +1,12 @@
-const Chat = require("../../models/chat");
-const User = require("../../models/user");
-const Message = require("../../models/message");
+import Chat from "../../models/chat.js";
+import User from "../../models/user.js";
+import Message from "../../models/message.js";
 
-const dataValidation = require("../../helper/socket-data-validation");
+import dataValidation from "../../helper/socket-data-validation.js";
 
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-exports.chat_createHandler = async (io, socket, data, callback) => {
+export const chat_createHandler = async (io, socket, data, callback) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -46,7 +46,7 @@ exports.chat_createHandler = async (io, socket, data, callback) => {
   }
 };
 
-exports.chat_joinHandler = async (io, socket, data, callback) => {
+export const chat_joinHandler = async (io, socket, data, callback) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -94,7 +94,7 @@ exports.chat_joinHandler = async (io, socket, data, callback) => {
   }
 };
 
-exports.chat_enterHandler = async (io, socket, data, callback) => {
+export const chat_enterHandler = async (io, socket, data, callback) => {
   try {
     dataValidation(data);
 
@@ -119,7 +119,7 @@ exports.chat_enterHandler = async (io, socket, data, callback) => {
   }
 };
 
-exports.chat_sendMessageHandler = async (io, socket, data, callback) => {
+export const chat_sendMessageHandler = async (io, socket, data, callback) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -168,7 +168,7 @@ exports.chat_sendMessageHandler = async (io, socket, data, callback) => {
   }
 };
 
-exports.chat_leaveHandler = async (io, socket, data, callback) => {
+export const chat_leaveHandler = async (io, socket, data, callback) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -208,7 +208,7 @@ exports.chat_leaveHandler = async (io, socket, data, callback) => {
   }
 };
 
-exports.chat_blockHandler = async (io, socket, data, callback) => {
+export const chat_blockHandler = async (io, socket, data, callback) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -249,7 +249,7 @@ exports.chat_blockHandler = async (io, socket, data, callback) => {
   }
 };
 
-exports.chat_removeMemberHandler = async (io, socket, data, callback) => {
+export const chat_removeMemberHandler = async (io, socket, data, callback) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {

@@ -1,14 +1,15 @@
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
+import passport from "passport";
+import passportGoogeOauth from "passport-google-oauth20";
+const GoogleStrategy = passportGoogeOauth.Strategy;
 //const LocalStrategy = require("passport-local").Strategy;
 //const JwtStrategy = require("passport-jwt").Strategy;
 //const ExtractJwt = require("passport-jwt").ExtractJwt;
-const bcrypt = require("bcrypt");
+import bcrypt from "bcrypt";
 
-const crypto = require("crypto");
-const util = require("util");
+import crypto from "crypto";
+import util from "util";
 
-const User = require("./models/user");
+import User from "./models/user.js";
 
 const passportStrategies = () => {
   // passport.use(
@@ -96,4 +97,4 @@ const passportStrategies = () => {
   // );
 };
 
-module.exports = passportStrategies;
+export default passportStrategies;

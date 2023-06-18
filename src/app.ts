@@ -1,41 +1,36 @@
 /* Third party libraries */
-const express = require("express");
-const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const helmet = require("helmet");
-const morgan = require("morgan");
-const passport = require("passport");
-
+import express from "express";
+import bodyParser from "body-parser";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+``;
+import helmet from "helmet";
+import morgan from "morgan";
+import passport from "passport";
 /* Initializing the express server */
 const app = express();
-
 /* Creating an http server and registering the express server to handle endpoints */
-const server = require("http").createServer(app);
-
+import { createServer } from "http";
+const server = createServer(app);
 /* Creation of the socket.io server */
-const io = require("socket.io")(server, {
+import { Socket, Server as SocketIOServer } from "socket.io";
+const io = new SocketIOServer(server, {
   cors: {
     origin: "*",
   },
 });
-
 /* Express routers */
-const authRouter = require("./endpoints/express/auth");
-const profileRouter = require("./endpoints/express/profile");
-
+import authRouter from "./endpoints/express/auth.js";
+import profileRouter from "./endpoints/express/profile.js";
 /* Socket.io handlers */
-const registerUserEvents = require("./endpoints/socket.io/user");
-const registerChatEvents = require("./endpoints/socket.io/chat");
-
+import registerUserEvents from "./endpoints/socket.io/user.js";
+import registerChatEvents from "./endpoints/socket.io/chat.js";
 /* A function that creates passport strategies */
-const passportStrategies = require("./passport-config");
-
+import passportStrategies from "./passport-config.js";
 /* A function that implements a cache for JWT */
-const verifyAndCacheToken = require("./jwt-cache");
-
-const JoiSchemas = require("./joi-schemas");
+import verifyAndCacheToken from "./jwt-cache.js";
+import * as JoiSchemas from "./joi-schemas.js";
 
 dotenv.config();
 
@@ -69,7 +64,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });
 });
 
-io.use(async (socket, next) => {
+interface SocketWithUserId extends Socket {
+  userId: string;
+}
+
+io.use(async (socket: SocketWithUserId, next) => {
   const token = socket.handshake.auth.token;
   if (!token) return next(new Error("Not authenticated"));
 
@@ -89,7 +88,7 @@ io.use(async (socket, next) => {
   next();
 });
 
-io.on("connection", (socket) => {
+io.on("connection", (socket: SocketWithUserId) => {
   socket.join(socket.userId);
 
   socket.use(async (_, next) => {
@@ -129,5 +128,7 @@ mongoose
     dbName: process.env.DATABASE_NAME,
   })
   .then(() => {
-    server.listen(PORT);
+    server.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
   });

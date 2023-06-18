@@ -1,12 +1,12 @@
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const dotenv = require("dotenv");
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-const User = require("../models/user");
+import User from "../models/user.js";
 
-exports.authenticate_jwt = async (req, res, next) => {
+export const authenticate_jwt = async (req, res, next) => {
   let decodedToken;
   const authHeader = req.get("Authorization");
   if (!authHeader) {
@@ -26,7 +26,7 @@ exports.authenticate_jwt = async (req, res, next) => {
   next();
 };
 
-exports.authenticate_local = async (req, res, next) => {
+export const authenticate_local = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 

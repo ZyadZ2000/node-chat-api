@@ -1,10 +1,10 @@
-const Joi = require("joi");
+import Joi from "joi";
 
 const validRequests = ["group", "private", "contact"];
 
-exports.jwtSchema = Joi.string().required();
-exports.usernameSchema = Joi.string().min(3).max(30);
-exports.mongoIdSchema = Joi.string().regex(/^[0-9a-fA-F]{24}$/);
-exports.chatNameSchema = Joi.string().min(3).max(30);
-exports.messageContentSchema = Joi.string().min(1).max(300);
-exports.requestTypeSchema = Joi.string().valid(...validRequests);
+export const jwtSchema = Joi.string().required();
+export const usernameSchema = Joi.string().min(3).max(30);
+export const mongoIdSchema = Joi.string().regex(/^[0-9a-fA-F]{24}$/);
+export const chatNameSchema = Joi.string().min(3).max(30);
+export const messageContentSchema = Joi.string().min(1).max(300);
+export const requestTypeSchema = Joi.string().valid(...validRequests);

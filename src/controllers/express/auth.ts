@@ -1,18 +1,18 @@
-const dotenv = require("dotenv");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const sgMail = require("@sendgrid/mail");
+import dotenv from "dotenv";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import sgMail from "@sendgrid/mail";
 
-const crypto = require("crypto");
-const util = require("util");
+import crypto from "crypto";
+import util from "util";
 
-const User = require("../../models/user");
+import User from "../../models/user.js";
 
 dotenv.config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-exports.register = async (req, res, next) => {
+export const register = async (req, res, next) => {
   try {
     const { email, password, username } = req.body;
 
@@ -35,7 +35,7 @@ exports.register = async (req, res, next) => {
   }
 };
 
-exports.login = (req, res) => {
+export const login = (req, res) => {
   const token = jwt.sign({ userId: req.user.id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
@@ -43,7 +43,7 @@ exports.login = (req, res) => {
   return res.status(200).send({ token });
 };
 
-exports.googleLogin = (req, res) => {
+export const googleLogin = (req, res) => {
   const token = jwt.sign({ userId: req.user.id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
@@ -51,7 +51,7 @@ exports.googleLogin = (req, res) => {
   return res.status(200).send({ token });
 };
 
-exports.resetPassword = async (req, res, next) => {
+export const resetPassword = async (req, res, next) => {
   try {
     const email = req.body.email;
     const user = await User.findOne({ email: email });
@@ -79,7 +79,7 @@ exports.resetPassword = async (req, res, next) => {
   }
 };
 
-exports.confirmReset = (req, res, next) => {
+export const confirmReset = (req, res, next) => {
   const token = req.body.token;
   const email = req.body.email;
   const password = req.body.password;

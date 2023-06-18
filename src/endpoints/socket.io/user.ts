@@ -1,6 +1,6 @@
-const userHandlers = require("../../controllers/socket.io/user");
+import * as userHandlers from "../../controllers/socket.io/user.js";
 
-module.exports = (io, socket) => {
+export default (io, socket) => {
   socket.on("user:block", async (data, callback) => {
     try {
       await userHandlers.user_blockHandler(io, socket, data, callback);

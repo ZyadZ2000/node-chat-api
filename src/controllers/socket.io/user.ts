@@ -1,10 +1,11 @@
-const User = require("../../models/user");
-const Request = require("../../models/request");
+import User from "../../models/user.js";
+import Request from "../../models/request.js";
 
-const dataValidation = require("../../helper/socket-data-validation");
-const { default: mongoose } = require("mongoose");
+import dataValidation from "../../helper/socket-data-validation.js";
 
-exports.user_blockHandler = async (io, socket, data, callback) => {
+import mongoose from "mongoose";
+
+export const user_blockHandler = async (io, socket, data, callback) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -70,7 +71,7 @@ exports.user_blockHandler = async (io, socket, data, callback) => {
   }
 };
 
-exports.user_deleteContactHandler = async (io, socket, data, callback) => {
+export const user_deleteContactHandler = async (io, socket, data, callback) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {

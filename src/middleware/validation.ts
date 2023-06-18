@@ -1,6 +1,6 @@
-const { validationResult } = require("express-validator");
+import { validationResult } from "express-validator";
 
-exports.validate = (req, res, next) => {
+export const validate = (req, res, next) => {
   // Validate request body using express-validator
   const errors = validationResult(req);
 

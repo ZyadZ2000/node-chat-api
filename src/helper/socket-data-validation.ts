@@ -1,6 +1,6 @@
-const JoiSchemas = require("../joi-schemas");
+import * as JoiSchemas from "../joi-schemas.js";
 
-module.exports = (data) => {
+export default (data) => {
   let result = null;
   Object.keys(data).forEach((key) => {
     result = null;

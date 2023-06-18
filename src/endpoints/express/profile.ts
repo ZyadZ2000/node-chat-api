@@ -1,12 +1,12 @@
-const express = require("express");
-const { body } = require("express-validator");
+import express from "express";
+import { body } from "express-validator";
 
-const profileController = require("../../controllers/express/profile");
+import * as profileController from "../../controllers/express/profile.js";
 
-const validation = require("../../middleware/validation");
-const authentication = require("../../middleware/authentication");
+import * as validation from "../../middleware/validation.js";
+import * as authentication from "../../middleware/authentication.js";
 
-const User = require("../../models/user");
+import User from "../../models/user.js";
 
 const router = express.Router();
 
@@ -104,4 +104,4 @@ router.put(
   profileController.changeUsername
 );
 
-module.exports = router;
+export default router;

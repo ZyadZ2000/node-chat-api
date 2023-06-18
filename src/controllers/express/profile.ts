@@ -1,13 +1,13 @@
-const dotenv = require("dotenv");
-const bcrypt = require("bcrypt");
+import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 
-const User = require("../../models/user");
-const Request = require("../../models/request");
-const Chat = require("../../models/chat");
+import User from "../../models/user.js";
+import Request from "../../models/request.js";
+import Chat from "../../models/chat.js";
 
 dotenv.config();
 
-exports.getProfile = async (req, res, next) => {
+export const getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
     const blockedUsersPromises = Array.from(user.blockedUsers.keys()).map(
@@ -32,7 +32,7 @@ exports.getProfile = async (req, res, next) => {
   }
 };
 
-exports.getContacts = async (req, res, next) => {
+export const getContacts = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId).select("contacts");
     const contactsPromises = Array.from(user.contacts.keys()).map((userId) =>
@@ -47,7 +47,7 @@ exports.getContacts = async (req, res, next) => {
   }
 };
 
-exports.getRequests = async (req, res, next) => {
+export const getRequests = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId).select("requests");
     const requestsPromises = Array.from(user.requests.keys()).map((reqId) =>
@@ -62,7 +62,7 @@ exports.getRequests = async (req, res, next) => {
   }
 };
 
-exports.getChats = async (req, res, next) => {
+export const getChats = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId).select("chats");
     const chatsPromises = Array.from(user.chats.keys()).map((chatId) =>
@@ -78,7 +78,7 @@ exports.getChats = async (req, res, next) => {
   }
 };
 
-exports.changePass = async (req, res, next) => {
+export const changePass = async (req, res, next) => {
   try {
     const { new_password } = req.body;
     req.user.password = await bcrypt.hash(
@@ -92,7 +92,7 @@ exports.changePass = async (req, res, next) => {
   }
 };
 
-exports.changeEmail = async (req, res, next) => {
+export const changeEmail = async (req, res, next) => {
   try {
     const { new_email } = req.body;
     req.user.email = new_email;
@@ -103,7 +103,7 @@ exports.changeEmail = async (req, res, next) => {
   }
 };
 
-exports.changeUsername = async (req, res, next) => {
+export const changeUsername = async (req, res, next) => {
   try {
     const { new_username } = req.body;
     req.user.username = new_username;
