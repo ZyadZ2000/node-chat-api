@@ -1,4 +1,5 @@
-# node-chat-api
+# chat-server
+
 API for a chat application that supports real-time communication.
 Planning to include video and audio calls.
 
