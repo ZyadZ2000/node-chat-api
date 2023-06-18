@@ -5,6 +5,7 @@ interface IRequest extends Document {
   receiver: mongoose.Types.ObjectId;
   type: "group" | "private" | "contact";
   chat: mongoose.Types.ObjectId | null;
+  createdAt: Date;
 }
 
 export default IRequest;

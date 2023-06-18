@@ -14,7 +14,9 @@ const roomSchema: Schema<IRoom> = new mongoose.Schema({
     type: Map,
     of: Number,
     validate: {
-      validator: function (members): boolean {
+      validator: function (
+        members: Map<mongoose.Schema.Types.ObjectId, number>
+      ): boolean {
         return members.size > 0;
       },
       message: 'The "members" field must have at least one entry.',
@@ -41,6 +43,14 @@ const roomSchema: Schema<IRoom> = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      validate: {
+        validator: function (
+          admins: mongoose.Schema.Types.ObjectId[]
+        ): boolean {
+          return admins.length > 0;
+        },
+        message: 'The "members" field must have at least one entry.',
+      },
       default: function (this: IRoom): mongoose.Types.ObjectId[] {
         return [this.creator];
       },

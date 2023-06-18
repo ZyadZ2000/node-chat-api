@@ -9,8 +9,12 @@ const messageSchema: Schema<IMessage> = new mongoose.Schema(
       required: true,
     },
     messageContent: {
-      type: String,
+      type: String, // Could be path to media file
       required: true,
+    },
+    media: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
